@@ -26,46 +26,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     TextView curLat, curLon, sensorValue, locUpdTS, sensorUpdTS;
     private SensorManager sensorManager;
+    LocationManager locMngr;
     private long lastUpdate;
-    //private Sensor sensor;
-    //private TriggerEventListener triggerEventListener;
     Time time;
-
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        //if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            //sensorValue.setText("Sensor Values: (0) @" + event.values[0] + ", (1) @" + event.values[1] + ", (2) @" + event.values[2]);
-            //time = new Time(System.currentTimeMillis());
-            //sensorUpdTS.setText("Update Time: " +String.format("%02d",time.getHours()) + ":" + String.format("%02d", time.getMinutes()) + ":" + String.format("%02d", time.getSeconds()));
-
-            float[] values = event.values;
-            // Movement
-            float x = values[0];
-            float y = values[1];
-            float z = values[2];
-            double l_scalarVal = Math.sqrt(
-                    Math.pow(x, 2) +
-                            Math.pow(y, 2) +
-                            Math.pow(z, 2)
-            );
-            sensorValue.setText(String.valueOf(l_scalarVal - 9.86));
-            long actualTime = System.currentTimeMillis();
-            if (Math.abs(l_scalarVal - 9.86) >= 0.5){
-                if(actualTime - lastUpdate < 200){
-                    return;
-                }
-                lastUpdate = actualTime;
-                time = new Time(actualTime);
-                sensorUpdTS.setText("Update Time: " +String.format("%02d",time.getHours()) + ":" + String.format("%02d", time.getMinutes()) + ":" + String.format("%02d", time.getSeconds()));
-            }
-        }
-
-    }
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-    }
+    boolean isLocListening;
+    int locCounter, sensorCounter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,30 +42,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         locUpdTS = findViewById(R.id.locUpdTS);
         sensorValue = findViewById(R.id.sensorValue);
         sensorUpdTS = findViewById(R.id.sensorUpdTS);
+        isLocListening = false;
+        locCounter = 0; sensorCounter = 0;
         try {
-            LocationManager locMngr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            locMngr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             if (locMngr.isProviderEnabled(LocationManager.GPS_PROVIDER) || locMngr.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
                 Toast.makeText(this, "requestLocationUpdates", Toast.LENGTH_SHORT).show();
                 locMngr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
                 locMngr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
             }
-
-
             sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-            //sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-
-            /*
-            triggerEventListener = new TriggerEventListener() {
-                @Override
-                public void onTrigger(TriggerEvent event) {
-                    // Do work
-                    sensorValue.setText("Sensor Value:" + event.sensor.getVendor());
-                    time = new Time(System.currentTimeMillis());
-                    sensorUpdTS.setText("Update Time: " +String.format("%02d",time.getHours()) + ":" + String.format("%02d", time.getMinutes()) + ":" + String.format("%02d", time.getSeconds()));
-                }
-            };
-             */
-            //sensorManager.requestTriggerSensor(triggerEventListener, sensor);
         }
         catch (Exception ex){
             Toast.makeText(this, "exception", Toast.LENGTH_SHORT).show();
@@ -120,10 +71,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         {
             curLat.setText("Current Lat: " + location.getLatitude());
             curLon.setText("Current Lon: " + location.getLongitude());
+            locCounter++;
             //time = new Time(System.currentTimeMillis());
             //locUpdTS.setText(time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds());
             time = new Time(System.currentTimeMillis());
-            locUpdTS.setText("Update Time: " + String.format("%02d",time.getHours()) + ":" + String.format("%02d", time.getMinutes()) + ":" + String.format("%02d", time.getSeconds()));
+            locUpdTS.setText("Update Time: " + String.format("%02d",time.getHours()) + ":" + String.format("%02d", time.getMinutes()) + ":" + String.format("%02d", time.getSeconds()) + " (" + locCounter + ")");
         }
     }
 
@@ -146,4 +98,55 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         //LoggerHelper.debug(provider + " disabled");
     }
 
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        //if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            //sensorValue.setText("Sensor Values: (0) @" + event.values[0] + ", (1) @" + event.values[1] + ", (2) @" + event.values[2]);
+            //time = new Time(System.currentTimeMillis());
+            //sensorUpdTS.setText("Update Time: " +String.format("%02d",time.getHours()) + ":" + String.format("%02d", time.getMinutes()) + ":" + String.format("%02d", time.getSeconds()));
+
+            float[] values = event.values;
+            // Movement
+            float x = values[0];
+            float y = values[1];
+            float z = values[2];
+            double l_scalarVal = Math.sqrt(
+                    Math.pow(x, 2) +
+                            Math.pow(y, 2) +
+                            Math.pow(z, 2)
+            );
+            sensorValue.setText(String.valueOf(l_scalarVal - 9.86));
+            long actualTime = System.currentTimeMillis();
+            if (Math.abs(l_scalarVal - 9.86) >= 1.5){
+                if(!isLocListening){
+                    isLocListening = true;
+                    locMngr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+                    locMngr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                }
+                if(actualTime - lastUpdate < 200){
+                    return;
+                }
+                sensorCounter++;
+                lastUpdate = actualTime;
+                time = new Time(actualTime);
+                sensorUpdTS.setText("Update Time: " +String.format("%02d",time.getHours()) + ":" + String.format("%02d", time.getMinutes()) + ":" + String.format("%02d", time.getSeconds())  + " (" + locCounter + ")");
+
+
+            }
+            else{
+                int duration = 30*1000;
+                if(System.currentTimeMillis() > lastUpdate + duration){
+                    isLocListening =false;
+                    locMngr.removeUpdates(this);
+                }
+            }
+        }
+
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
 }
