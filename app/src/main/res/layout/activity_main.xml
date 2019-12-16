@@ -11,25 +11,36 @@
         android:layout_centerInParent="true"
         android:orientation="vertical">
         <TextView
-            android:id="@+id/curLoc"
+            android:id="@+id/curLat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Current Location: -" />
+            android:textSize="20dp"
+            android:text="Current Lat: -" />
+        <TextView
+            android:id="@+id/curLon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:text="Current Lon: -" />
         <TextView
             android:id="@+id/locUpdTS"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingBottom="20dp"
+            android:textSize="20dp"
             android:text="Update Time: -"/>
 
         <TextView
             android:id="@+id/sensorValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="20dp"
             android:text="Sensor Value: -" />
         <TextView
             android:id="@+id/sensorUpdTS"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="20dp"
             android:text="Update Time: -"/>
     </LinearLayout>
 

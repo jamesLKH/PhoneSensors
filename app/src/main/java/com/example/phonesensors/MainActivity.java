@@ -24,7 +24,7 @@ import java.sql.Time;
 
 public class MainActivity extends AppCompatActivity implements LocationListener, SensorEventListener {
 
-    TextView curLoc, sensorValue, locUpdTS, sensorUpdTS;
+    TextView curLat, curLon, sensorValue, locUpdTS, sensorUpdTS;
     private SensorManager sensorManager;
     private long lastUpdate;
     //private Sensor sensor;
@@ -72,7 +72,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        curLoc = findViewById(R.id.curLoc);
+        curLat = findViewById(R.id.curLat);
+        curLon = findViewById(R.id.curLon);
         locUpdTS = findViewById(R.id.locUpdTS);
         sensorValue = findViewById(R.id.sensorValue);
         sensorUpdTS = findViewById(R.id.sensorUpdTS);
@@ -117,7 +118,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         //Toast.makeText(this, "Location Changed", Toast.LENGTH_SHORT).show();
         if (location != null)
         {
-            curLoc.setText("Current Location: " + location.getLatitude() + ", " + location.getLongitude());
+            curLat.setText("Current Lat: " + location.getLatitude());
+            curLon.setText("Current Lon: " + location.getLongitude());
             //time = new Time(System.currentTimeMillis());
             //locUpdTS.setText(time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds());
             time = new Time(System.currentTimeMillis());
